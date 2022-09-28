@@ -111,6 +111,12 @@ class Server:
   """
   communicate_zombie() is responsible for sending the associated wordlist to each zombie
   and for checking if the zombie found a matching hash from it's given wordlist
+
+  @params:
+    - conn(socket.socket()), a zombie's socket
+    - z_addr(tuple), the address of the zombie
+    - data(dict), contains the md5 hash(string) and a wordlist(list[string])
+  @return: None
   """
   def communicate_zombie(self, conn, z_addr, data):
     # send data to zombie(conn) as follows:
@@ -124,8 +130,9 @@ class Server:
       c = conn.recv(1).decode()
       if c == ';': break
       response += c
-    print(response)
-    if response.strip() != "":
+
+    # check for match
+    if response.strip() != ";":
       print(f"[SUCC] {z_addr[0]} successfully cracked the hash: {response[response.find(';')+1:]}")
       return
 

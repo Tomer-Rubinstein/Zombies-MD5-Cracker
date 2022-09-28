@@ -9,7 +9,6 @@ client_socket = socket.socket()
 client_socket.connect((HOST, PORT))
 client_socket.send('a'.encode()) # dummy byte
 
-
 header = ""
 while True:
   c = client_socket.recv(1).decode()
