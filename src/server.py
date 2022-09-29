@@ -14,9 +14,10 @@ the host and the zombies and for dividing the bruteforcing work between the zomb
   - port(integer), the port to listen for connections on
 """
 class Server:
-  def __init__(self, host: str, port: int):
+  def __init__(self, host: str, port: int, connlim: int):
     self.HOST = host
     self.PORT = port
+    self.connlim = connlim
     self.zombies = {} # connected zombies dictionary
 
 
@@ -40,9 +41,13 @@ class Server:
   @return: None
   """
   def collect_zombies(self):
-    # TODO: argparse to instruct how many connections can be accepted
-    self.server_socket.listen()
-
+    # instruct how many connections can be accepted
+    # if no connections limit was given, it will default to unlimited
+    if not self.connlim:
+      self.server_socket.listen()
+    else:
+      self.server_socket.listen(self.connlim)
+    
     while True:
       zombie_socket, zombie_addr = self.server_socket.accept()
       # because we can't kill the accept thread, we will listen

@@ -2,7 +2,7 @@ from server import Server
 import threading
 import socket
 import sys
-
+import argparse
 
 ASCII_ART = """
             ______                                __                           
@@ -21,18 +21,23 @@ ASCII_ART = """
 def main():
 	print(ASCII_ART)
 
-	if len(sys.argv) != 2:
-		print("[ERROR] Please enter port no. as the 2nd argument")
-		sys.exit()
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--port', type=int, required=False)
+	parser.add_argument('--connlim', type=int, required=False)
 
-	PORT = int(sys.argv[1])
-	server = Server(socket.gethostname(), PORT)
+	cli_args = parser.parse_args()
+	PORT = cli_args.port
+	CONNECTIONS_LIMIT = cli_args.connlim
+	if not PORT:
+		PORT = 3000
+
+	server = Server(socket.gethostname(), PORT, CONNECTIONS_LIMIT)
 	server.init_server()
 
 	collect_thread = threading.Thread(target=server.collect_zombies)
 	collect_thread.start()
 
-	print("Listening for connections..\nWhen ready, enter 'start' to start cracking, CTRL+C to abort")
+	print(f"Listening for connections on port {PORT}..\nWhen ready, enter 'start' to start cracking, CTRL+C to abort")
 	print("or 'zombies' to show connected zombies.\n")
 	while True:
 		try:
