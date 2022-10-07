@@ -42,7 +42,7 @@ class Server:
   """
   def collect_zombies(self):
     # instruct how many connections can be accepted
-    # if no connections limit was given, it will default to unlimited
+    # if no connections limit was given, it will be set to the default value lib "socket" decides.
     if not self.connlim:
       self.server_socket.listen()
     else:
