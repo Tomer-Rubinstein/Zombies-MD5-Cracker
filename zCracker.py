@@ -21,7 +21,7 @@ def main():
   parser = argparse.ArgumentParser(description="zCracker is a multi-client threaded server software to decode a MD5 hash using a botnet.\nSource: https://github.com/Tomer-Rubinstein/Zombies-MD5-Cracker")
   parser.add_argument('--port', type=int, required=False, help="port to bind the server to")
   parser.add_argument('--connlim', type=int, required=False, help="limit the no. of zombies in the botnet")
-  parser.add_argument('--hash', type=str, required=True, help="target MD5 Hash to decrypt")
+  parser.add_argument('--hash', type=str, required=True, help="target MD5 Hash to decode")
   parser.add_argument('--wordlist', type=str, required=True, help="path to a wordlist file with words seperated by newlines")
 
   cli_args = parser.parse_args()
@@ -50,7 +50,7 @@ def main():
         break
       elif user_input == 'zombies':
         print(f"Currently, there are {len(server.zombies)} connected zombies:")
-        print("".join(["\t@ "+ip_addr[0]+"\n" for ip_addr in server.zombies.keys()]))
+        print("".join(["\t@ "+zombie[0]+"\n" for zombie in server.zombies]))
     except KeyboardInterrupt:
       server.stop_collecting()
       sys.exit()
