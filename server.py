@@ -18,7 +18,7 @@ class Server:
     self.HOST = host
     self.PORT = port
     self.connlim = connlim
-    self.zombies = {} # connected zombies dictionary
+    self.zombies = []
 
 
   """
@@ -56,7 +56,7 @@ class Server:
       if zombie_socket.recv(3).decode() == 'end':
         break
       # TODO: handle client disconnections
-      self.zombies[zombie_addr] = zombie_socket
+      self.zombies.append((zombie_addr[0], zombie_socket))
       print(f"[+] New connection established from {zombie_addr[0]}")
 
 
@@ -97,19 +97,16 @@ class Server:
       words = [word.strip('\n') for word in file.readlines()]
       n = len(words)
       k = len(self.zombies)
-      for i,j in enumerate(self.zombies):
-        # i - ranging from 0..k
-        # j - the key of each entry at dict self.zombies
-        
+      for i, zombie_tuple in enumerate(self.zombies):
         # divide the wordlist words equally between each client
         currSlice = words[math.floor(i/k*n):math.floor((i+1)/k*n)]
-        conn = self.zombies[j]
+        conn = zombie_tuple[1]
         data = {
           "md5_hash": md5_hash,
           "wordlist": currSlice
         }
         # work in threads so we can listen for multiple responses from each zombie
-        zcomm_thread = threading.Thread(target=self.communicate_zombie, args=(conn, j, data))
+        zcomm_thread = threading.Thread(target=self.communicate_zombie, args=(conn, zombie_tuple[0], data))
         zcomm_thread.start()
 
   
@@ -119,7 +116,7 @@ class Server:
 
   @params:
     - conn(socket.socket()), a zombie's socket
-    - z_addr(tuple), the address of the zombie
+    - z_addr(string), the address of the zombie
     - data(dict), contains the md5 hash(string) and a wordlist(list[string])
   @return: None
   """
@@ -137,9 +134,9 @@ class Server:
       response += c
 
     # check for match
-    if response.strip() != ";":
-      print(f"[SUCC] {z_addr[0]} successfully cracked the hash: {response[response.find(';')+1:]}")
+    if response.strip() != "":
+      print(f"[SUCC] {z_addr} successfully cracked the hash: {response[response.find(';')+1:]}")
       return
 
-    print(f"[!] {z_addr[0]} couldn't crack the hash")
+    print(f"[!] {z_addr} couldn't crack the hash")
     self.server_socket.close()
